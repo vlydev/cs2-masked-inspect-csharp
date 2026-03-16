@@ -21,8 +21,11 @@ internal sealed class ProtoReader
 
     internal IEnumerable<ProtoField> ReadAllFields()
     {
+        int fieldCount = 0;
         while (_pos < _data.Length)
         {
+            if (++fieldCount > 100)
+                throw new InvalidOperationException("Protobuf field count exceeds limit of 100");
             var tag = ReadVarInt();
             var wireType = (int)(tag & 0x7);
             var fieldNumber = (int)(tag >> 3);

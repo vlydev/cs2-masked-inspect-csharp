@@ -59,6 +59,10 @@ public static class InspectLink
     /// </summary>
     public static string Serialize(ItemPreviewData data)
     {
+        if (data.PaintWear < 0f || data.PaintWear > 1f)
+            throw new ArgumentOutOfRangeException(nameof(data), $"PaintWear must be in [0.0, 1.0], got {data.PaintWear}");
+        if (data.CustomName is { Length: > 100 })
+            throw new ArgumentOutOfRangeException(nameof(data), $"CustomName must not exceed 100 characters, got {data.CustomName.Length}");
         var protoBytes = EncodeItem(data);
 
         var buffer = new byte[1 + protoBytes.Length];
@@ -82,6 +86,9 @@ public static class InspectLink
     public static ItemPreviewData Deserialize(string input)
     {
         var hex = ExtractHex(input);
+
+        if (hex.Length > 4096)
+            throw new ArgumentException($"Payload too long (max 4096 hex chars): \"{input[..Math.Min(64, input.Length)]}...\"");
 
         byte[] raw;
         try

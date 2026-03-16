@@ -361,4 +361,39 @@ public class InspectLinkTests
         };
         Assert.Equal(ToolHex, InspectLink.Serialize(data));
     }
+
+    // -------------------------------------------------------------------------
+    // Validation: payload length, proto field count, value ranges
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void PayloadTooLong_Throws()
+        => Assert.Throws<ArgumentException>(() => InspectLink.Deserialize(new string('A', 4097) + "B")); // 4098 chars
+
+    [Fact]
+    public void Serialize_PaintwearAboveOne_Throws()
+        => Assert.Throws<ArgumentOutOfRangeException>(() =>
+            InspectLink.Serialize(new ItemPreviewData { PaintWear = 1.5f }));
+
+    [Fact]
+    public void Serialize_PaintwearBelowZero_Throws()
+        => Assert.Throws<ArgumentOutOfRangeException>(() =>
+            InspectLink.Serialize(new ItemPreviewData { PaintWear = -0.1f }));
+
+    [Fact]
+    public void Serialize_PaintwearBoundary_Valid()
+    {
+        // 0.0 and 1.0 are valid
+        Assert.StartsWith("00", InspectLink.Serialize(new ItemPreviewData { PaintWear = 0f }));
+        Assert.StartsWith("00", InspectLink.Serialize(new ItemPreviewData { PaintWear = 1f }));
+    }
+
+    [Fact]
+    public void Serialize_CustomnameTooLong_Throws()
+        => Assert.Throws<ArgumentOutOfRangeException>(() =>
+            InspectLink.Serialize(new ItemPreviewData { CustomName = new string('A', 101) }));
+
+    [Fact]
+    public void Serialize_CustomnameMaxLength_Valid()
+        => Assert.StartsWith("00", InspectLink.Serialize(new ItemPreviewData { CustomName = new string('A', 100) }));
 }
