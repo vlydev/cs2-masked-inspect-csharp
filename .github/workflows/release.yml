@@ -1,0 +1,31 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish-nuget:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0"
+
+      - name: Pack with version from tag
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          dotnet pack src/VlyDev.Cs2MaskedInspect/VlyDev.Cs2MaskedInspect.csproj \
+            --configuration Release \
+            -p:Version="$VERSION"
+
+      - name: Publish to NuGet
+        run: |
+          dotnet nuget push src/VlyDev.Cs2MaskedInspect/bin/Release/*.nupkg \
+            --api-key ${{ secrets.NUGET_API_KEY }} \
+            --source https://api.nuget.org/v3/index.json \
+            --skip-duplicate
