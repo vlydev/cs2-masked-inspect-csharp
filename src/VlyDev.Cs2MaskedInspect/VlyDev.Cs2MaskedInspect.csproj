@@ -16,7 +16,12 @@
     <PackageTags>cs2;csgo;inspect;protobuf;steam</PackageTags>
     <RepositoryUrl>https://github.com/vlydev/cs2-masked-inspect-csharp</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
 </Project>
