@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VlyDev.Cs2MaskedInspect/VlyDev.Cs2MaskedInspect.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VlyDev.Cs2MaskedInspect.Tests/VlyDev.Cs2MaskedInspect.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <LangVersion>12</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>VlyDev.Cs2MaskedInspect</AssemblyName>
+    <RootNamespace>VlyDev.Cs2MaskedInspect</RootNamespace>
+
+    <!-- NuGet metadata -->
+    <PackageId>VlyDev.Cs2MaskedInspect</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>VlyDev</Authors>
+    <Description>Offline encoder/decoder for CS2 masked inspect URLs — pure C#, no dependencies.</Description>
+    <PackageTags>cs2;csgo;inspect;protobuf;steam</PackageTags>
+    <RepositoryUrl>https://github.com/vlydev/cs2-masked-inspect-csharp</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+</Project>
