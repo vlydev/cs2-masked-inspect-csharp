@@ -101,6 +101,24 @@ InspectLink.IsClassic(classicUrl); // true
 
 ---
 
+## Validation rules
+
+`Deserialize()` enforces:
+
+| Rule | Limit | Exception |
+|------|-------|-----------|
+| Hex payload length | max 4,096 characters | `ArgumentException` |
+| Protobuf field count | max 100 per message | `InvalidOperationException` |
+
+`Serialize()` enforces:
+
+| Field | Constraint | Exception |
+|-------|-----------|-----------|
+| `PaintWear` | `[0.0, 1.0]` | `ArgumentOutOfRangeException` |
+| `CustomName` | max 100 characters | `ArgumentOutOfRangeException` |
+
+---
+
 ## How the format works
 
 Three URL formats are handled:
