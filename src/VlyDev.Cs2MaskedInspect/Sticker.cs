@@ -13,4 +13,5 @@ public sealed class Sticker
     public float? OffsetY { get; set; }
     public float? OffsetZ { get; set; }
     public uint Pattern { get; set; }
+    public uint? HighlightReel { get; set; }
 }

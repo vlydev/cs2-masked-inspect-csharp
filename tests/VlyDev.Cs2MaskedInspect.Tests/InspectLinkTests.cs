@@ -36,7 +36,7 @@ public class InspectLinkTests
         => Assert.Equal(922u, InspectLink.Deserialize(NativeHex).PaintSeed);
 
     [Fact] public void NativeXorKey_Paintwear()
-        => Assert.Equal(0.04121f, InspectLink.Deserialize(NativeHex).PaintWear, precision: 3);
+        => Assert.Equal(0.04121f, InspectLink.Deserialize(NativeHex).PaintWear!.Value, precision: 3);
 
     [Fact] public void NativeXorKey_Rarity()
         => Assert.Equal(3u, InspectLink.Deserialize(NativeHex).Rarity);
@@ -68,7 +68,7 @@ public class InspectLinkTests
         => Assert.Equal(353u, InspectLink.Deserialize(ToolHex).PaintSeed);
 
     [Fact] public void ToolHex_Paintwear()
-        => Assert.Equal(0.005411375779658556f, InspectLink.Deserialize(ToolHex).PaintWear,
+        => Assert.Equal(0.005411375779658556f, InspectLink.Deserialize(ToolHex).PaintWear!.Value,
             precision: 7);
 
     [Fact] public void ToolHex_Rarity()
@@ -146,7 +146,7 @@ public class InspectLinkTests
         const float original = 0.123456789f;
         var expected = BitConverter.UInt32BitsToSingle(BitConverter.SingleToUInt32Bits(original));
         var result = Roundtrip(new ItemPreviewData { PaintWear = original });
-        Assert.Equal(expected, result.PaintWear, precision: 7);
+        Assert.Equal(expected, result.PaintWear!.Value, precision: 7);
     }
 
     [Fact] public void Roundtrip_ItemidLarge()
@@ -396,4 +396,80 @@ public class InspectLinkTests
     [Fact]
     public void Serialize_CustomnameMaxLength_Valid()
         => Assert.StartsWith("00", InspectLink.Serialize(new ItemPreviewData { CustomName = new string('A', 100) }));
+
+    // -------------------------------------------------------------------------
+    // CSFloat / gen.test.ts test vectors
+    // -------------------------------------------------------------------------
+
+    private const string CsfloatA = "00180720DA03280638FBEE88F90340B2026BC03C96";
+    private const string CsfloatB = "00180720C80A280638A4E1F5FB03409A0562040800104C62040801104C62040802104C62040803104C6D4F5E30";
+    private const string CsfloatC = "A2B2A2BA69A882A28AA192AECAA2D2B700A3A5AAA2B286FA7BA0D684BE72";
+
+    [Fact] public void CsfloatA_Defindex()
+        => Assert.Equal(7u, InspectLink.Deserialize(CsfloatA).DefIndex);
+
+    [Fact] public void CsfloatA_Paintindex()
+        => Assert.Equal(474u, InspectLink.Deserialize(CsfloatA).PaintIndex);
+
+    [Fact] public void CsfloatA_Paintseed()
+        => Assert.Equal(306u, InspectLink.Deserialize(CsfloatA).PaintSeed);
+
+    [Fact] public void CsfloatA_Rarity()
+        => Assert.Equal(6u, InspectLink.Deserialize(CsfloatA).Rarity);
+
+    [Fact] public void CsfloatA_Paintwear_NotNull()
+        => Assert.NotNull(InspectLink.Deserialize(CsfloatA).PaintWear);
+
+    [Fact] public void CsfloatA_Paintwear_Approx()
+        => Assert.Equal(0.6337f, InspectLink.Deserialize(CsfloatA).PaintWear!.Value, precision: 3);
+
+    [Fact] public void CsfloatB_StickerCount()
+        => Assert.Equal(4, InspectLink.Deserialize(CsfloatB).Stickers.Count);
+
+    [Fact] public void CsfloatB_StickerIds()
+    {
+        foreach (var s in InspectLink.Deserialize(CsfloatB).Stickers)
+            Assert.Equal(76u, s.StickerId);
+    }
+
+    [Fact] public void CsfloatB_Paintindex()
+        => Assert.Equal(1352u, InspectLink.Deserialize(CsfloatB).PaintIndex);
+
+    [Fact] public void CsfloatB_Paintwear_Approx()
+        => Assert.Equal(0.99f, InspectLink.Deserialize(CsfloatB).PaintWear!.Value, precision: 2);
+
+    [Fact] public void CsfloatC_Defindex()
+        => Assert.Equal(1355u, InspectLink.Deserialize(CsfloatC).DefIndex);
+
+    [Fact] public void CsfloatC_Quality()
+        => Assert.Equal(12u, InspectLink.Deserialize(CsfloatC).Quality);
+
+    [Fact] public void CsfloatC_KeychainCount()
+        => Assert.Equal(1, InspectLink.Deserialize(CsfloatC).Keychains.Count);
+
+    [Fact] public void CsfloatC_KeychainHighlightReel()
+        => Assert.Equal(345u, InspectLink.Deserialize(CsfloatC).Keychains[0].HighlightReel);
+
+    [Fact] public void CsfloatC_NoPaintwear()
+        => Assert.Null(InspectLink.Deserialize(CsfloatC).PaintWear);
+
+    [Fact]
+    public void Roundtrip_HighlightReel()
+    {
+        var data = new ItemPreviewData
+        {
+            DefIndex = 7,
+            Keychains = [new Sticker { Slot = 0, StickerId = 36, HighlightReel = 345 }],
+        };
+        var result = InspectLink.Deserialize(InspectLink.Serialize(data));
+        Assert.Equal(345u, result.Keychains[0].HighlightReel);
+    }
+
+    [Fact]
+    public void Roundtrip_NullPaintwear()
+    {
+        var data = new ItemPreviewData { DefIndex = 7, PaintWear = null };
+        var result = InspectLink.Deserialize(InspectLink.Serialize(data));
+        Assert.Null(result.PaintWear);
+    }
 }

@@ -9,7 +9,7 @@ public sealed class ItemPreviewData
     public uint PaintIndex { get; set; }
     public uint Rarity { get; set; }
     public uint Quality { get; set; }
-    public float PaintWear { get; set; }
+    public float? PaintWear { get; set; }
     public uint PaintSeed { get; set; }
     public uint KillEaterScoreType { get; set; }
     public uint KillEaterValue { get; set; }

@@ -59,7 +59,7 @@ public static class InspectLink
     /// </summary>
     public static string Serialize(ItemPreviewData data)
     {
-        if (data.PaintWear < 0f || data.PaintWear > 1f)
+        if (data.PaintWear is < 0f or > 1f)
             throw new ArgumentOutOfRangeException(nameof(data), $"PaintWear must be in [0.0, 1.0], got {data.PaintWear}");
         if (data.CustomName is { Length: > 100 })
             throw new ArgumentOutOfRangeException(nameof(data), $"CustomName must not exceed 100 characters, got {data.CustomName.Length}");
@@ -204,6 +204,7 @@ public static class InspectLink
         if (s.OffsetY.HasValue) w.WriteFloat32Fixed(8, s.OffsetY.Value);
         if (s.OffsetZ.HasValue) w.WriteFloat32Fixed(9, s.OffsetZ.Value);
         w.WriteUInt32(10, s.Pattern);
+        if (s.HighlightReel.HasValue) w.WriteUInt32(11, s.HighlightReel.Value);
         return w.ToBytes();
     }
 
@@ -225,6 +226,7 @@ public static class InspectLink
                 case 8: s.OffsetY = BitConverter.ToSingle(f.BytesValue!, 0); break;
                 case 9: s.OffsetZ = BitConverter.ToSingle(f.BytesValue!, 0); break;
                 case 10: s.Pattern = (uint)f.VarIntValue; break;
+                case 11: s.HighlightReel = (uint)f.VarIntValue; break;
             }
         }
         return s;
@@ -245,7 +247,8 @@ public static class InspectLink
         w.WriteUInt32(6, item.Quality);
 
         // PaintWear: float32 reinterpreted as uint32 varint
-        w.WriteUInt32(7, BitConverter.SingleToUInt32Bits(item.PaintWear));
+        if (item.PaintWear.HasValue)
+            w.WriteUInt32(7, BitConverter.SingleToUInt32Bits(item.PaintWear.Value));
 
         w.WriteUInt32(8, item.PaintSeed);
         w.WriteUInt32(9, item.KillEaterScoreType);
