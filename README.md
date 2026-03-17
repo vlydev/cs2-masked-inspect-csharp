@@ -76,6 +76,76 @@ var decoded = InspectLink.Deserialize(hex); // round-trip
 
 ---
 
+## Gen codes
+
+Gen codes are space-separated command strings used on CS2 community servers to spawn items.
+
+Format:
+```
+!gen {defindex} {paintindex} {paintseed} {paintwear} [{s0_id} {s0_wear} ... {s4_id} {s4_wear}] [{kc_id} {kc_wear} ...]
+```
+
+- Stickers are always represented as 5 slot pairs (padded with `0 0` for empty slots)
+- Keychains are appended without padding, only for present slots
+- Float values have trailing zeros stripped (max 8 decimal places); `0.0` becomes `"0"`
+
+### Generate a Steam inspect URL from parameters
+
+```csharp
+using VlyDev.Cs2MaskedInspect;
+
+string url = GenCode.Generate(
+    defIndex:   7,
+    paintIndex: 474,
+    paintSeed:  306,
+    paintWear:  0.22540508f,
+    rarity:     6);
+// steam://rungame/730/76561202255233023/+csgo_econ_action_preview%200018...
+```
+
+### Convert an ItemPreviewData to a gen code
+
+```csharp
+using VlyDev.Cs2MaskedInspect;
+
+var item = new ItemPreviewData
+{
+    DefIndex   = 7,
+    PaintIndex = 474,
+    PaintSeed  = 306,
+    PaintWear  = 0.22540508f,
+    Stickers   = [new Sticker { Slot = 2, StickerId = 7203 }],
+};
+
+string code = GenCode.ToGenCode(item);
+// "!gen 7 474 306 0.22540508 0 0 0 0 7203 0 0 0 0 0"
+
+string code2 = GenCode.ToGenCode(item, "!g"); // custom prefix
+```
+
+### Parse a gen code string
+
+```csharp
+using VlyDev.Cs2MaskedInspect;
+
+var item = GenCode.ParseGenCode("!gen 7 474 306 0.22540508 0 0 0 0 7203 0 0 0 0 0");
+Console.WriteLine(item.DefIndex);    // 7
+Console.WriteLine(item.PaintIndex);  // 474
+Console.WriteLine(item.PaintSeed);   // 306
+Console.WriteLine(item.PaintWear);   // 0.22540508
+
+var item2 = GenCode.ParseGenCode("7 474 306 0.22540508"); // prefix is optional
+```
+
+### Convert an existing inspect link directly to a gen code
+
+```csharp
+string code = GenCode.GenCodeFromLink("steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20001A...");
+// "!gen 7 474 306 0.22540508"
+```
+
+---
+
 ## Validation
 
 Use `IsMasked()` and `IsClassic()` to detect the link type without decoding it.
