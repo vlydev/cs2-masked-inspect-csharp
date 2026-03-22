@@ -10,7 +10,7 @@
 
     <!-- NuGet metadata -->
     <PackageId>VlyDev.Cs2MaskedInspect</PackageId>
-    <Version>1.1.0</Version>
+    <Version>1.1.1</Version>
     <Authors>VlyDev</Authors>
     <Description>Offline encoder/decoder for CS2 masked inspect URLs — pure C#, no dependencies.</Description>
     <PackageTags>cs2;csgo;inspect;protobuf;steam</PackageTags>
