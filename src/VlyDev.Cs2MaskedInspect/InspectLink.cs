@@ -205,6 +205,7 @@ public static class InspectLink
         if (s.OffsetZ.HasValue) w.WriteFloat32Fixed(9, s.OffsetZ.Value);
         w.WriteUInt32(10, s.Pattern);
         if (s.HighlightReel.HasValue) w.WriteUInt32(11, s.HighlightReel.Value);
+        if (s.PaintKit.HasValue) w.WriteUInt32(12, s.PaintKit.Value);
         return w.ToBytes();
     }
 
@@ -227,6 +228,7 @@ public static class InspectLink
                 case 9: s.OffsetZ = BitConverter.ToSingle(f.BytesValue!, 0); break;
                 case 10: s.Pattern = (uint)f.VarIntValue; break;
                 case 11: s.HighlightReel = (uint)f.VarIntValue; break;
+                case 12: s.PaintKit = (uint)f.VarIntValue; break;
             }
         }
         return s;

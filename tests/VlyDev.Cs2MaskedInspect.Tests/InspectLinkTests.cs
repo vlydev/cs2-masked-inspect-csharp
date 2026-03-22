@@ -472,4 +472,72 @@ public class InspectLinkTests
         var result = InspectLink.Deserialize(InspectLink.Serialize(data));
         Assert.Null(result.PaintWear);
     }
+
+    // -------------------------------------------------------------------------
+    // Sticker Slab test vectors
+    //
+    // Sticker Slabs: defIndex=1355, quality=8, keychains[0].stickerId=37 (placeholder)
+    // keychains[0].paintKit = actual slab variant ID
+    //
+    // URL A: rarity=5, paintKit=7256
+    // URL B: rarity=3, paintKit=275
+    // -------------------------------------------------------------------------
+
+    private const string StickerSlabA =
+        "steam://run/730//+csgo_econ_action_preview%20918191895A9BB191B994A199F991E191339096999181B4F149A98D5C0889";
+
+    private const string StickerSlabB =
+        "steam://run/730//+csgo_econ_action_preview%20CBDBCBD300C1EBCBE3C8FBC3A3CBBBCB69CACCC3CBDBEEAB58C9B8B67C83";
+
+    [Fact] public void StickerSlabA_DefIndex()
+        => Assert.Equal(1355u, InspectLink.Deserialize(StickerSlabA).DefIndex);
+
+    [Fact] public void StickerSlabA_Quality()
+        => Assert.Equal(8u, InspectLink.Deserialize(StickerSlabA).Quality);
+
+    [Fact] public void StickerSlabA_Rarity()
+        => Assert.Equal(5u, InspectLink.Deserialize(StickerSlabA).Rarity);
+
+    [Fact] public void StickerSlabA_KeychainCount()
+        => Assert.Single(InspectLink.Deserialize(StickerSlabA).Keychains);
+
+    [Fact] public void StickerSlabA_KeychainStickerId()
+        => Assert.Equal(37u, InspectLink.Deserialize(StickerSlabA).Keychains[0].StickerId);
+
+    [Fact] public void StickerSlabA_KeychainPaintKit()
+        => Assert.Equal(7256u, InspectLink.Deserialize(StickerSlabA).Keychains[0].PaintKit);
+
+    [Fact] public void StickerSlabB_DefIndex()
+        => Assert.Equal(1355u, InspectLink.Deserialize(StickerSlabB).DefIndex);
+
+    [Fact] public void StickerSlabB_Quality()
+        => Assert.Equal(8u, InspectLink.Deserialize(StickerSlabB).Quality);
+
+    [Fact] public void StickerSlabB_Rarity()
+        => Assert.Equal(3u, InspectLink.Deserialize(StickerSlabB).Rarity);
+
+    [Fact] public void StickerSlabB_KeychainCount()
+        => Assert.Single(InspectLink.Deserialize(StickerSlabB).Keychains);
+
+    [Fact] public void StickerSlabB_KeychainStickerId()
+        => Assert.Equal(37u, InspectLink.Deserialize(StickerSlabB).Keychains[0].StickerId);
+
+    [Fact] public void StickerSlabB_KeychainPaintKit()
+        => Assert.Equal(275u, InspectLink.Deserialize(StickerSlabB).Keychains[0].PaintKit);
+
+    [Fact]
+    public void Roundtrip_PaintKit()
+    {
+        var data = new ItemPreviewData
+        {
+            DefIndex = 1355,
+            Quality = 8,
+            Rarity = 5,
+            Keychains = [new Sticker { Slot = 0, StickerId = 37, PaintKit = 7256 }],
+        };
+        var result = InspectLink.Deserialize(InspectLink.Serialize(data));
+        Assert.Single(result.Keychains);
+        Assert.Equal(37u, result.Keychains[0].StickerId);
+        Assert.Equal(7256u, result.Keychains[0].PaintKit);
+    }
 }
