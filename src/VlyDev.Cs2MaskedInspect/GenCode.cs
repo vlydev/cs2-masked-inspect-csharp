@@ -60,6 +60,8 @@ public static class GenCode
             {
                 result.Add(s.StickerId.ToString());
                 result.Add(FormatFloat(s.Wear ?? 0f));
+                if (s.PaintKit.HasValue)
+                    result.Add(s.PaintKit.Value.ToString());
             }
         }
 

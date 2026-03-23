@@ -238,6 +238,54 @@ public class GenCodeTests
     }
 
     // -------------------------------------------------------------------------
+    // ToGenCode — keychain paintKit
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void ToGenCode_Keychain_WithPaintKit_AppendsPaintKit()
+    {
+        var item = new ItemPreviewData
+        {
+            DefIndex = 1355, PaintIndex = 0, PaintSeed = 0, PaintWear = 0.0f,
+            Keychains = [new Sticker { Slot = 0, StickerId = 37, Wear = 0.0f, PaintKit = 929 }],
+        };
+        var code = GenCode.ToGenCode(item, "");
+        var tokens = code.Split(' ');
+        Assert.Equal("37",  tokens[tokens.Length - 3]);
+        Assert.Equal("0",   tokens[tokens.Length - 2]);
+        Assert.Equal("929", tokens[tokens.Length - 1]);
+    }
+
+    [Fact]
+    public void ToGenCode_Keychain_WithoutPaintKit_NoExtraToken()
+    {
+        var item = new ItemPreviewData
+        {
+            DefIndex = 7, PaintIndex = 0, PaintSeed = 0, PaintWear = 0.0f,
+            Keychains = [new Sticker { Slot = 0, StickerId = 36, Wear = 0.0f }],
+        };
+        var code = GenCode.ToGenCode(item, "");
+        var tokens = code.Split(' ');
+        Assert.Equal("36", tokens[tokens.Length - 2]);
+        Assert.Equal("0",  tokens[tokens.Length - 1]);
+    }
+
+    // -------------------------------------------------------------------------
+    // GenCodeFromLink — sticker slab
+    // -------------------------------------------------------------------------
+
+    [Fact]
+    public void GenCodeFromLink_SlabUrl_EndsWithPaintKit()
+    {
+        const string slabUrl = "steam://run/730//+csgo_econ_action_preview%20819181994A8BA181A982B189E981F181238086898191A4E1208698F309C9";
+        var code = GenCode.GenCodeFromLink(slabUrl, "");
+        var tokens = code.Split(' ');
+        Assert.Equal("37",  tokens[tokens.Length - 3]);
+        Assert.Equal("0",   tokens[tokens.Length - 2]);
+        Assert.Equal("929", tokens[tokens.Length - 1]);
+    }
+
+    // -------------------------------------------------------------------------
     // ParseGenCode — keychains
     // -------------------------------------------------------------------------
 
