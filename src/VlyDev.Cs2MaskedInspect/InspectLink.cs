@@ -36,11 +36,11 @@ public static class InspectLink
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex MaskedUrlRe =
-        new(@"csgo_econ_action_preview(?:%20|\s)[0-9A-Fa-f]{10,}$",
+        new(@"csgo_econ_action_preview(?:%20|\s)%?[0-9A-Fa-f]{10,}$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex PureMaskedRe =
-        new(@"csgo_econ_action_preview(?:%20|\s|\+)([0-9A-Fa-f]{10,})$",
+        new(@"csgo_econ_action_preview(?:%20|\s|\+)%?([0-9A-Fa-f]{10,})$",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static readonly Regex HexLetterRe =
