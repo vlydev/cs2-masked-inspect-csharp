@@ -82,26 +82,37 @@ public static class InspectLink
     /// Decode an inspect-link hex payload (or full URL) into an <see cref="ItemPreviewData"/>.
     /// Accepts raw hex strings, steam://rungame/... and csgo://rungame/... URLs.
     /// </summary>
-    /// <exception cref="ArgumentException">When the payload is too short or invalid hex.</exception>
+    /// <exception cref="MalformedInspectLinkException">When the payload is malformed — odd-length hex, non-hex chars, too short, or proto decode failure.</exception>
     public static ItemPreviewData Deserialize(string input)
     {
         var hex = ExtractHex(input);
+        var preview = input.Length > 120 ? input[..100] + "..." : input;
 
         if (hex.Length > 4096)
-            throw new ArgumentException($"Payload too long (max 4096 hex chars): \"{input[..Math.Min(64, input.Length)]}...\"");
+            throw new MalformedInspectLinkException($"Malformed inspect URL: payload too long (max 4096 hex chars). Input: \"{preview}\"");
+
+        // Reject malformed hex BEFORE Convert.FromHexString so callers always get
+        // one consistent MalformedInspectLinkException instead of a low-level
+        // FormatException leaking the implementation. Real-world URLs from a
+        // buggy upstream source arrive odd-length and truncated.
+        if (hex.Length == 0 || hex.Length % 2 != 0)
+            throw new MalformedInspectLinkException($"Malformed inspect URL: hex payload has invalid length ({hex.Length} chars, must be even and non-empty). The source likely truncated the URL. Input: \"{preview}\"");
+
+        if (!IsAllHex(hex))
+            throw new MalformedInspectLinkException($"Malformed inspect URL: payload contains non-hex characters. Input: \"{preview}\"");
 
         byte[] raw;
         try
         {
             raw = Convert.FromHexString(hex);
         }
-        catch (FormatException)
+        catch (FormatException ex)
         {
-            throw new ArgumentException($"Payload too short or invalid hex: \"{input}\"");
+            throw new MalformedInspectLinkException($"Malformed inspect URL: hex decode failed ({ex.Message}). Input: \"{preview}\"", ex);
         }
 
         if (raw.Length < 6)
-            throw new ArgumentException($"Payload too short or invalid hex: \"{input}\"");
+            throw new MalformedInspectLinkException($"Malformed inspect URL: payload too short ({raw.Length} bytes, need >=6). Input: \"{preview}\"");
 
         byte key = raw[0];
         byte[] decrypted;
@@ -121,7 +132,24 @@ public static class InspectLink
         var protoBytes = new byte[decrypted.Length - 5];
         Buffer.BlockCopy(decrypted, 1, protoBytes, 0, protoBytes.Length);
 
-        return DecodeItem(protoBytes);
+        try
+        {
+            return DecodeItem(protoBytes);
+        }
+        catch (Exception ex) when (ex is not MalformedInspectLinkException)
+        {
+            throw new MalformedInspectLinkException($"Malformed inspect URL: protobuf decode failed ({ex.Message}). Payload likely corrupted or truncated. Input: \"{preview}\"", ex);
+        }
+    }
+
+    private static bool IsAllHex(string s)
+    {
+        foreach (var c in s)
+        {
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F')))
+                return false;
+        }
+        return true;
     }
 
     /// <summary>
